@@ -10,8 +10,18 @@ class MySqlGrammar extends IlluminateMySqlGrammar
 {
     const COLUMN_MODIFIER_SRID = 'Srid';
 
-    public function __construct()
+    public function __construct($connection = null)
     {
+        // Laravel 12 injects the database Connection into the Grammar constructor,
+        // whereas Laravel <= 11 used a no-argument constructor. Forward the
+        // connection only when the parent constructor actually expects it so the
+        // same code keeps working across both framework versions.
+        if ($connection !== null
+            && method_exists(parent::class, '__construct')
+            && (new \ReflectionMethod(parent::class, '__construct'))->getNumberOfParameters() > 0) {
+            parent::__construct($connection);
+        }
+
         // Enable SRID as a column modifier
         if (!in_array(self::COLUMN_MODIFIER_SRID, $this->modifiers)) {
             $this->modifiers[] = self::COLUMN_MODIFIER_SRID;

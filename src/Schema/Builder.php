@@ -17,6 +17,14 @@ class Builder extends MySqlBuilder
      */
     protected function createBlueprint($table, Closure $callback = null)
     {
-        return new Blueprint($table, $callback);
+        // Laravel 12 changed the Blueprint constructor to require the Connection as
+        // its first argument; Laravel <= 11 accepted the table name first. The
+        // removal of Connection::withTablePrefix() in Laravel 12 is used here as the
+        // version signal so the fork supports both framework versions.
+        if (method_exists($this->connection, 'withTablePrefix')) {
+            return new Blueprint($table, $callback);
+        }
+
+        return new Blueprint($this->connection, $table, $callback);
     }
 }

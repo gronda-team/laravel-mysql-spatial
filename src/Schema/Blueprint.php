@@ -126,12 +126,17 @@ class Blueprint extends IlluminateBlueprint
     /**
      * Specify a spatial index for the table.
      *
+     * Signature kept compatible with Illuminate\Database\Schema\Blueprint::spatialIndex()
+     * as of Laravel 12, which added a third $operatorClass argument (a PostgreSQL
+     * concept). It is accepted for compatibility but unused by this MySQL grammar.
+     *
      * @param string|array $columns
-     * @param string       $name
+     * @param string|null  $name
+     * @param string|null  $operatorClass
      *
      * @return \Illuminate\Support\Fluent
      */
-    public function spatialIndex($columns, $name = null)
+    public function spatialIndex($columns, $name = null, $operatorClass = null)
     {
         return $this->indexCommand('spatial', $columns, $name);
     }

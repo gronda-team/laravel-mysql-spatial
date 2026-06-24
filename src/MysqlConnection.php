@@ -40,7 +40,16 @@ class MysqlConnection extends IlluminateMySqlConnection
      */
     protected function getDefaultSchemaGrammar()
     {
-        return $this->withTablePrefix(new MySqlGrammar());
+        $grammar = new MySqlGrammar($this);
+
+        // Laravel <= 11 applied the table prefix to the schema grammar through the
+        // connection. Laravel 12 injects the connection via the grammar constructor
+        // (handled above) and removed Connection::withTablePrefix().
+        if (method_exists($this, 'withTablePrefix')) {
+            return $this->withTablePrefix($grammar);
+        }
+
+        return $grammar;
     }
 
     /**
