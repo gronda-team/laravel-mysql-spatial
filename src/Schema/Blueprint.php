@@ -9,13 +9,26 @@ class Blueprint extends IlluminateBlueprint
     /**
      * Add a geometry column on the table.
      *
-     * @param string   $column
-     * @param null|int $srid
+     * Signature kept compatible with Illuminate\Database\Schema\Blueprint::geometry()
+     * as of Laravel 11 ($subtype, $srid). This grammar only applies $srid (see
+     * MySqlGrammar::modifySrid()); $subtype is accepted for compatibility but unused.
+     *
+     * Backward compatibility: historically this fork accepted the SRID as the second
+     * positional argument (e.g. geometry('col', 4326)). When an integer is passed as
+     * $subtype, it is treated as the SRID so existing migrations keep working.
+     *
+     * @param string          $column
+     * @param string|int|null $subtype
+     * @param int|null        $srid
      *
      * @return \Illuminate\Support\Fluent
      */
-    public function geometry($column, $srid = null)
+    public function geometry($column, $subtype = null, $srid = null)
     {
+        if (is_int($subtype)) {
+            $srid = $subtype;
+        }
+
         return $this->addColumn('geometry', $column, compact('srid'));
     }
 
